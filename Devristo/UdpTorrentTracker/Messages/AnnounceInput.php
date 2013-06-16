@@ -15,6 +15,8 @@ use Devristo\UdpTorrentTracker\Exceptions\ProtocolViolationException;
 use Zend\Math\BigInteger\BigInteger;
 
 class AnnounceInput extends Input{
+
+
     protected $infoHash;
     protected $peerId;
     protected $downloaded;
@@ -25,6 +27,10 @@ class AnnounceInput extends Input{
     protected $key;
     protected $num_want;
     protected $port;
+    protected $extensions;
+
+    protected $credentials = null;
+    protected $requestString = null;
 
     /**
      * @param mixed $downloaded
@@ -252,6 +258,7 @@ class AnnounceInput extends Input{
 
 
 
+
         $o = new self();
 
         $o->setConnectionId($connectionId);
@@ -268,6 +275,18 @@ class AnnounceInput extends Input{
         $o->setkey($key);
         $o->setNumWant($numWant);
         $o->setPort($port);
+
+        # We have extensions
+        if($offset + 2 <= strlen($data)){
+            list($extensions) = unpack("n", substr($data, $offset,2));
+            $offset += 2;
+
+            if($extensions & 1)
+                $o->credentials = AuthenticationExtension::fromBytes($data, $offset);
+
+            if($extensions & 2)
+                $o->requestString = RequestStringExtension::fromBytes($data, $offset);
+        }
 
         if($action !== 1)
             throw new ProtocolViolationException("Action should be 1 for a ANNOUNCE INPUT");
