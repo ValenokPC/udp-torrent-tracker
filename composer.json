@@ -1,0 +1,21 @@
+{
+    "name": "devristo/udp-torrent-tracker",
+    "description": "Generic udp torrent tracker, easily integrated in custom environments.",
+    "minimum-stability": "stable",
+    "authors": [
+        {
+            "name": "Devristo",
+            "email": "chris@devristo.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Devristo\\UdpTorrentTracker\\": ""
+        }
+    },
+    "target-dir": "Devristo/UdpTorrentTracker",
+    "require": {
+        "zendframework/zend-math": "2.2.1",
+        "zendframework/zend-eventmanager": "2.2.1"
+    }
+}
