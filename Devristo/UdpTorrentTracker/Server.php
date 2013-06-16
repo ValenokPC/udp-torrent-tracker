@@ -10,6 +10,7 @@
 namespace Devristo\UdpTorrentTracker;
 
 
+use Devristo\UdpTorrentTracker\Exceptions\ProtocolViolationException;
 use Devristo\UdpTorrentTracker\Messages\AnnounceInput;
 use Devristo\UdpTorrentTracker\Messages\AnnounceOutput;
 use Devristo\UdpTorrentTracker\Messages\ConnectionInput;
@@ -24,8 +25,45 @@ use Zend\Math\Rand;
 use DateTime;
 
 class Server implements EventManagerAwareInterface {
+    protected $port;
+    protected $ip;
+
     protected $socket;
     protected $_eventManager = null;
+
+    /**
+     * @param mixed $ip
+     */
+    public function setIp($ip)
+    {
+        $this->ip = $ip;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIp()
+    {
+        return $this->ip;
+    }
+
+    /**
+     * @param mixed $port
+     */
+    public function setPort($port)
+    {
+        $this->port = $port;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPort()
+    {
+        return $this->port;
+    }
+
+
 
     /**
      * @var Connection[]
@@ -59,26 +97,31 @@ class Server implements EventManagerAwareInterface {
     }
 
     public function run(){
-        $this->socket = $socket = stream_socket_server("udp://0.0.0.1:1113", $errno, $errstr, STREAM_SERVER_BIND);
+        $this->socket = $socket = stream_socket_server("udp://{$this->getIp()}:{$this->getPort()}", $errno, $errstr, STREAM_SERVER_BIND);
 
         if (!$socket) {
             die("$errstr ($errno)");
         }
 
         do {
-            $udpPacket = stream_socket_recvfrom($socket, 1, 0, $peer);
+            try{
+                $udpPacket = stream_socket_recvfrom($socket, 1, 0, $peer);
 
-            $inputPacket = Input::fromUdpPacket($peer, $udpPacket);
+                $inputPacket = Input::fromUdpPacket($peer, $udpPacket);
 
-            if($inputPacket instanceof ConnectionInput)
-                $this->onConnect($inputPacket);
-            elseif($inputPacket instanceof AnnounceInput)
-                $this->onAnnounce($inputPacket);
-            elseif($inputPacket instanceof ScrapeInput)
-                $this->onScrape($inputPacket);
+                if($inputPacket instanceof ConnectionInput)
+                    $this->onConnect($inputPacket);
+                elseif($inputPacket instanceof AnnounceInput)
+                    $this->onAnnounce($inputPacket);
+                elseif($inputPacket instanceof ScrapeInput)
+                    $this->onScrape($inputPacket);
 
-            # Trigger events
-            $this->getEventManager()->trigger("input", array("packet" => $inputPacket));
+                # Trigger events
+                $this->getEventManager()->trigger("input", array("packet" => $inputPacket));
+            } catch(ProtocolViolationException $exception){
+                $this->getEventManager()->trigger("exception", array("exception" => $exception));
+            }
+
         } while ($udpPacket !== false);
     }
 
@@ -108,7 +151,7 @@ class Server implements EventManagerAwareInterface {
         $this->getEventManager()->trigger("announce", compact("announce"));
     }
 
-    private function sendError($peer, $transactionId, $message)
+    public function sendError($peer, $transactionId, $message)
     {
         $error = new ErrorOutput();
         $error->setTransactionId($transactionId);
@@ -117,7 +160,7 @@ class Server implements EventManagerAwareInterface {
         stream_socket_sendto($this->socket, $error->toBytes(), $peer);
     }
 
-    public function announce(AnnounceInput $input, array $peers){
+    public function replyAnnounce(AnnounceInput $input, array $peers){
         $output = new AnnounceOutput();
 
         foreach($peers as $peer)
