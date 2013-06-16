@@ -7,7 +7,7 @@
  * To change this template use File | Settings | File Templates.
  */
 
-namespace Devristo\UdpTracker;
+namespace Devristo\UdpTorrentTracker;
 
 
 use Devristo\UdpTorrentTracker\Messages\AnnounceInput;

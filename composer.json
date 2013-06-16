@@ -10,7 +10,7 @@
     ],
     "autoload": {
         "psr-0": {
-            "Devristo\\UdpTorrentTracker\\": ""
+            "Devristo\\UdpTorrentTracker\\": "Devristo/UdpTorrentTracker"
         }
     },
     "target-dir": "Devristo/UdpTorrentTracker",
