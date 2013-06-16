@@ -30,6 +30,38 @@ class AnnounceInput extends Input{
     protected $extensions;
 
     protected $credentials = null;
+
+    /**
+     * @return null
+     */
+    public function getRequestString()
+    {
+        return $this->requestString;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExtensions()
+    {
+        return $this->extensions;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEvent()
+    {
+        return $this->event;
+    }
+
+    /**
+     * @return null
+     */
+    public function getCredentials()
+    {
+        return $this->credentials;
+    }
     protected $requestString = null;
 
     /**
