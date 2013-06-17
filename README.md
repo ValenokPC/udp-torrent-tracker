@@ -1,7 +1,7 @@
 udp-torrent-tracker
 ===================
 
-'''php
+```php
 use Devristo\UdpTorrentTracker\Messages\AnnounceInput;
 
 
@@ -64,4 +64,4 @@ $server->getEventManager()->attach("exception", function(\Zend\EventManager\Even
 $server->setIp("0.0.0.0");
 $server->setPort(6881);
 $server->run();
-'''
+```
