@@ -105,7 +105,7 @@ class Server implements EventManagerAwareInterface {
             die(socket_last_error($socket));
         }
 
-        $this->getEventManager()->trigger("listens-tart", $this);
+        $this->getEventManager()->trigger("listen-start", $this);
 
         $buf = null;
         $from = null;
@@ -176,8 +176,12 @@ class Server implements EventManagerAwareInterface {
         socket_sendto($this->socket, $buff, strlen($buff),0, $peerIp, $peerPort);
     }
 
-    public function replyAnnounce(AnnounceInput $input, array $peers){
+    public function replyAnnounce(AnnounceInput $input, $seeders, $leechers, array $peers){
         $output = new AnnounceOutput();
+        $output->setTransactionId($input->getTransactionId());
+        $output->setConnectionId($input->getConnectionId());
+        $output->setSeeders($seeders);
+        $output->setLeechers($leechers);
 
         foreach($peers as $peer)
             $output->addPeer($peer);

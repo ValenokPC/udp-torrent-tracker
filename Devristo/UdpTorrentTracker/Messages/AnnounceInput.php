@@ -289,11 +289,11 @@ class AnnounceInput extends Input{
         $uploaded = $bi->binToInt(substr($data, $offset, 8));
         $offset += 8;
 
-        list($event, $ipv4, $key, $numWant, $port) = array_values(unpack("N5", substr($data, $offset, 4*5)));
-        $offset += 4*5;
+        list($event, $ipv4, $key, $numWant) = array_values(unpack("N4", substr($data, $offset, 4*4)));
+        $offset += 4*4;
 
-
-
+        list($port) = array_values(unpack("n", substr($data, $offset, 2)));
+        $offset += 2;
 
         $o = new self();
 
@@ -315,21 +315,20 @@ class AnnounceInput extends Input{
         $o->peerIp = $peerIp;
         $o->peerPort = $peerPort;
 
-        if($o->ipv4 !== 0){
-            $o->peerIp = long2ip($o->ipv4);
-            $o->peerPort = $o->port;
+        if($o->ipv4 === 0){
+            $o->ipv4 = $peerIp;
         }
 
         # We have extensions
-        if($offset + 2 <= strlen($data)){
-            list($extensions) = array_values(unpack("n", substr($data, $offset,2)));
-            $offset += 2;
+        if($offset + 1 <= strlen($data)){
+            list($extensions) = array_values(unpack("C", substr($data, $offset,1)));
+            $offset += 1;
 
-            if($extensions & 1)
+            if(($extensions & 1) == 1)
                 $o->credentials = AuthenticationExtension::fromBytes($data, $offset);
 
-            if($extensions & 2)
-                $o->requestString = RequestStringExtension::fromBytes($data, $offset);
+            if(($extensions & 2) == 2)
+                $o->requestString = RequestStringExtension::fromBytes($data, $offset)->getRequestString();
         }
 
         if($action !== 1)

@@ -42,7 +42,7 @@ class AuthenticationExtension {
     public static function fromBytes($data, &$offset){
         $hashPositionMarker = $offset;
 
-        list($length) = unpack("n", substr($data, $offset, 2));
+        list($length) = array_values(unpack("n", substr($data, $offset, 2)));
         $offset += 2;
 
         $username = substr($data, $offset, $length);

@@ -30,8 +30,8 @@ class RequestStringExtension {
     }
 
     public static function fromBytes($data, &$offset){
-        list($length) = unpack("n", substr($data, $offset, 2));
-        $offset += 2;
+        list($length) = array_values(unpack("C", substr($data, $offset, 1)));
+        $offset += 1;
 
         $o = new self();
         $o->requestString = substr($data, $offset, $length);
