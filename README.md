@@ -22,7 +22,7 @@ $server->getEventManager()->attach("announce", function(\Zend\EventManager\Event
     # And your own code to check if the user may download
     if(!$user->mayDownload($torrent)){
         $event->stopPropagation();
-        $server->sendError($request->getPeerId(), $request->getPeerPort(), $request->getTransactionId(), "May not download!);
+        $server->sendError($request->getPeerId(), $request->getPeerPort(), $request->getTransactionId(), "May not download!");
         return;
     }
     
