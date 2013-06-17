@@ -103,6 +103,8 @@ class Server implements EventManagerAwareInterface {
             die("$errstr ($errno)");
         }
 
+        $this->getEventManager()->trigger("listens-tart");
+
         do {
             try{
                 $udpPacket = stream_socket_recvfrom($socket, 1, 0, $peer);

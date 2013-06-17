@@ -10,6 +10,8 @@
 namespace Devristo\UdpTorrentTracker\Messages;
 
 
+use Devristo\UdpTorrentTracker\Exceptions\ProtocolViolationException;
+
 abstract class Input
 {
     const PACKET_TYPE_CONNECT = 0;
