@@ -25,7 +25,7 @@ class ScrapeInput extends Input {
         $connectionId = substr($data, $offset, 8);
         $offset += 8;
 
-        list($action, $transactionId) = unpack("N2", substr($data, $offset, 8));
+        list($action, $transactionId) = array_values(unpack("N2", substr($data, $offset, 8)));
         $offset += 8;
 
         $o = new self();

@@ -265,7 +265,7 @@ class AnnounceInput extends Input{
         $connectionId = substr($data, $offset, 8);
         $offset += 8;
 
-        list($action, $transactionId) = unpack("N2", substr($data, $offset, 8));
+        list($action, $transactionId) = array_values(unpack("N2", substr($data, $offset, 8)));
         $offset += 8;
 
         $infoHash = substr($data, $offset, 20);
@@ -285,7 +285,7 @@ class AnnounceInput extends Input{
         $uploaded = $bi->binToInt(substr($data, $offset, 8));
         $offset += 8;
 
-        list($event, $ipv4, $key, $numWant, $port) = unpack("N5", substr($data, $offset, 4*5));
+        list($event, $ipv4, $key, $numWant, $port) = array_values(unpack("N5", substr($data, $offset, 4*5)));
         $offset += 4*5;
 
 
@@ -310,7 +310,7 @@ class AnnounceInput extends Input{
 
         # We have extensions
         if($offset + 2 <= strlen($data)){
-            list($extensions) = unpack("n", substr($data, $offset,2));
+            list($extensions) = array_values(unpack("n", substr($data, $offset,2)));
             $offset += 2;
 
             if($extensions & 1)
