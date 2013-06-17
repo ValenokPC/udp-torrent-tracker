@@ -98,10 +98,11 @@ class Server implements EventManagerAwareInterface {
 
     public function run(){
         $this->socket = $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);//stream_socket_server("udp://{$this->getIp()}:{$this->getPort()}", $errno, $errstr, STREAM_SERVER_BIND);
+        socket_set_option ($socket, SOL_SOCKET, SO_REUSEADDR, 1);
 
 
-        if (!socket_bind($socket,$this->getIp(), $this->getPort())) {
-            die("$errstr ($errno)");
+        if (!@socket_bind($socket,$this->getIp(), $this->getPort())) {
+            die(socket_last_error($socket));
         }
 
         $this->getEventManager()->trigger("listens-tart");
