@@ -315,6 +315,11 @@ class AnnounceInput extends Input{
         $o->peerIp = $peerIp;
         $o->peerPort = $peerPort;
 
+        if($o->ipv4 !== 0){
+            $o->peerIp = long2ip($o->ipv4);
+            $o->peerPort = $o->port;
+        }
+
         # We have extensions
         if($offset + 2 <= strlen($data)){
             list($extensions) = array_values(unpack("n", substr($data, $offset,2)));
