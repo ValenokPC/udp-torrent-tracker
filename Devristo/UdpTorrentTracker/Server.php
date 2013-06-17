@@ -97,19 +97,24 @@ class Server implements EventManagerAwareInterface {
     }
 
     public function run(){
-        $this->socket = $socket = stream_socket_server("udp://{$this->getIp()}:{$this->getPort()}", $errno, $errstr, STREAM_SERVER_BIND);
+        $this->socket = $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);//stream_socket_server("udp://{$this->getIp()}:{$this->getPort()}", $errno, $errstr, STREAM_SERVER_BIND);
 
-        if (!$socket) {
+
+        if (!socket_bind($socket,$this->getIp(), $this->getPort())) {
             die("$errstr ($errno)");
         }
 
         $this->getEventManager()->trigger("listens-tart");
 
+        $buf = null;
+        $from = null;
+        $port = null;
+
         do {
             try{
-                $udpPacket = stream_socket_recvfrom($socket, 1, 0, $peer);
+                socket_recvfrom($socket, $buf, 1500,0, $from, $port);
 
-                $inputPacket = Input::fromUdpPacket($peer, $udpPacket);
+                $inputPacket = Input::fromUdpPacket("$from:$port", $buf);
 
                 if($inputPacket instanceof ConnectionInput)
                     $this->onConnect($inputPacket);
