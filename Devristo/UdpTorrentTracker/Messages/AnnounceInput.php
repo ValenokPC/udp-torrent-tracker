@@ -31,6 +31,10 @@ class AnnounceInput extends Input{
 
     protected $credentials = null;
 
+    protected function setEvent($event){
+        $this->event = $event;
+    }
+
     /**
      * @return null
      */
@@ -256,7 +260,7 @@ class AnnounceInput extends Input{
         return $this->action;
     }
 
-    public static function fromUdpPacket($peer, $data){
+    public static function fromUdpPacket($peerIp, $peerPort, $data){
         if(strlen($data) < 20)
             throw new ProtocolViolationException("Data packet should be at least 20 bytes long");
 
@@ -307,6 +311,9 @@ class AnnounceInput extends Input{
         $o->setkey($key);
         $o->setNumWant($numWant);
         $o->setPort($port);
+
+        $o->peerIp = $peerIp;
+        $o->peerPort = $peerPort;
 
         # We have extensions
         if($offset + 2 <= strlen($data)){

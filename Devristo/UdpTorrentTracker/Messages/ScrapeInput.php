@@ -16,7 +16,7 @@ use Devristo\UdpTorrentTracker\Messages\Input;
 class ScrapeInput extends Input {
     protected $infoHashes = array();
 
-    public static function fromUdpPacket($peer, $data){
+    public static function fromUdpPacket($peerIp, $peerPort, $data){
         if(strlen($data) < 20)
             throw new ProtocolViolationException("Data packet should be at least 20 bytes long");
 
@@ -29,6 +29,9 @@ class ScrapeInput extends Input {
         $offset += 8;
 
         $o = new self();
+
+        $o->peerIp = $peerIp;
+        $o->peerPort = $peerPort;
 
         $o->setConnectionId($connectionId);
         $o->setAction($action);

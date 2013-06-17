@@ -14,7 +14,7 @@ use Devristo\UdpTorrentTracker\Messages\Input;
 use Devristo\UdpTorrentTracker\Exceptions\ProtocolViolationException;
 
 class ConnectionInput extends Input{
-    public static function fromUdpPacket($peer, $data){
+    public static function fromUdpPacket($peerIp, $peerPort, $data){
         if(strlen($data) < 16)
             throw new ProtocolViolationException("Data packet should be at least 16 bytes long");
 
@@ -30,11 +30,14 @@ class ConnectionInput extends Input{
         $o->setAction($action);
         $o->setTransactionId($transactionId);
 
+        $o->peerIp = $peerIp;
+        $o->peerPort = $peerPort;
+
 
         if($action !== 0)
             throw new ProtocolViolationException("Action should be 0 for a CONNECT INPUT");
 
-        if($connectionId !== hex2bin("41727101980"))
+        if($connectionId !== hex2bin("0000041727101980"))
             throw new ProtocolViolationException("ConnectionId shoulde be 0x41727101980 for CONNECT INPUT");
 
         return $o;

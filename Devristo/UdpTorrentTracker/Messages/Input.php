@@ -28,23 +28,42 @@ abstract class Input
     protected $action;
     protected $transactionId;
 
-    protected $peer;
+    protected $peerIp;
+    protected $peerPort;
 
     /**
-     * @param mixed $peer
+     * @param mixed $peerIp
      */
-    public function setPeer($peer)
+    public function setPeerIp($peerIp)
     {
-        $this->peer = $peer;
+        $this->peerIp = $peerIp;
     }
 
     /**
      * @return mixed
      */
-    public function getPeer()
+    public function getPeerIp()
     {
-        return $this->peer;
+        return $this->peerIp;
     }
+
+    /**
+     * @param mixed $peerPort
+     */
+    public function setPeerPort($peerPort)
+    {
+        $this->peerPort = $peerPort;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPeerPort()
+    {
+        return $this->peerPort;
+    }
+
+
 
     public function getType(){
         return self::$_typeNames[$this->getAction()];
@@ -98,7 +117,7 @@ abstract class Input
         return $this->transactionId;
     }
 
-    static public function fromUdpPacket($peer, $data)
+    static public function fromUdpPacket($peerIp, $peerPort, $data)
     {
         if (strlen($data) < 16)
             throw new ProtocolViolationException("Data packet should be at least 16 bytes long");
@@ -112,11 +131,11 @@ abstract class Input
 
         switch ($action) {
             case self::PACKET_TYPE_CONNECT:
-                return ConnectionInput::fromUdpPacket($peer, $data);
+                return ConnectionInput::fromUdpPacket($peerIp, $peerPort, $data);
             case self::PACKET_TYPE_ANNOUNCE:
-                return AnnounceInput::fromUdpPacket($peer, $data);
+                return AnnounceInput::fromUdpPacket($peerIp, $peerPort, $data);
             case self::PACKET_TYPE_SCRAPE:
-                return ScrapeInput::fromUdpPacket($peer, $data);
+                return ScrapeInput::fromUdpPacket($peerIp, $peerPort, $data);
         }
     }
 }

@@ -105,7 +105,7 @@ class Server implements EventManagerAwareInterface {
             die(socket_last_error($socket));
         }
 
-        $this->getEventManager()->trigger("listens-tart");
+        $this->getEventManager()->trigger("listens-tart", $this);
 
         $buf = null;
         $from = null;
@@ -113,9 +113,12 @@ class Server implements EventManagerAwareInterface {
 
         do {
             try{
-                socket_recvfrom($socket, $buf, 1500,0, $from, $port);
+                $result = socket_recvfrom($socket, $buf, 1500,0, $from, $port);
 
-                $inputPacket = Input::fromUdpPacket("$from:$port", $buf);
+                if($result === false)
+                    exit("Error occured!");
+
+                $inputPacket = Input::fromUdpPacket($from, $port, $buf);
 
                 if($inputPacket instanceof ConnectionInput)
                     $this->onConnect($inputPacket);
@@ -125,12 +128,12 @@ class Server implements EventManagerAwareInterface {
                     $this->onScrape($inputPacket);
 
                 # Trigger events
-                $this->getEventManager()->trigger("input", array("packet" => $inputPacket));
+                $this->getEventManager()->trigger("input", $this, array("packet" => $inputPacket));
             } catch(ProtocolViolationException $exception){
-                $this->getEventManager()->trigger("exception", array("exception" => $exception));
+                $this->getEventManager()->trigger("exception", $this, array("exception" => $exception));
             }
 
-        } while ($udpPacket !== false);
+        } while ($result !== false);
     }
 
     private function onConnect(ConnectionInput $in){
@@ -144,28 +147,33 @@ class Server implements EventManagerAwareInterface {
         $reply->setConnectionId($connectionId);
         $reply->setTransactionId($in->getTransactionId());
 
-        stream_socket_sendto($this->socket, $reply->toBytes(), $in->getPeer());
+        $buff = $reply->toBytes();
+        socket_sendto($this->socket, $buff, strlen($buff), 0, $in->getPeerIp(), $in->getPeerPort());
+
+        $this->getEventManager()->trigger("connect", $this, array("request" => $in));
+
     }
 
     private function onAnnounce(AnnounceInput $announce){
         if(!array_key_exists($announce->getConnectionId(), $this->_connections)){
-            $this->sendError($announce->getPeer(), $announce->getTransactionId(), "Client not connected");
+            $this->sendError($announce->getPeerIp(), $announce->getPeerPort(), $announce->getTransactionId(), "Client not connected");
             return;
         }
 
         # Heartbeat
         $this->_connections[$announce->getConnectionId()]->setLastHeartbeat(new DateTime());
 
-        $this->getEventManager()->trigger("announce", compact("announce"));
+        $this->getEventManager()->trigger("announce", $this, compact("announce"));
     }
 
-    public function sendError($peer, $transactionId, $message)
+    public function sendError($peerIp, $peerPort, $transactionId, $message)
     {
         $error = new ErrorOutput();
         $error->setTransactionId($transactionId);
         $error->setMessage($message);
 
-        stream_socket_sendto($this->socket, $error->toBytes(), $peer);
+        $buff = $error->toBytes();
+        socket_sendto($this->socket, $buff, strlen($buff),0, $peerIp, $peerPort);
     }
 
     public function replyAnnounce(AnnounceInput $input, array $peers){
@@ -174,19 +182,20 @@ class Server implements EventManagerAwareInterface {
         foreach($peers as $peer)
             $output->addPeer($peer);
 
-        stream_socket_sendto($this->socket, $output->toBytes(), $input->getPeer());
+        $buff = $output->toBytes();
+        socket_sendto($this->socket, $buff, strlen($buff), 0, $input->getPeerIp(), $input->getPeerPort());
     }
 
     private function onScrape(ScrapeInput $scrape)
     {
         if(!array_key_exists($scrape->getConnectionId(), $this->_connections)){
-            $this->sendError($scrape->getPeer(), $scrape->getTransactionId(), "Client not connected");
+            $this->sendError($scrape->getPeerIp(), $scrape->getPeerPort(), $scrape->getTransactionId(), "Client not connected");
             return;
         }
 
         # Heartbeat
         $this->_connections[$scrape->getConnectionId()]->setLastHeartbeat(new DateTime());
 
-        $this->getEventManager()->trigger("scrape", compact("scrape"));
+        $this->getEventManager()->trigger("scrape", $this,compact("scrape"));
     }
 }
