@@ -70,23 +70,6 @@ class ConnectionOutput {
     }
 
     public function toBytes(){
-        return pack("NN",$this->getAction(), $this->getTransactionId()).$this->getConnectionId();
-    }
-
-    public static function fromBytes($data){
-        if(strlen($data) < 16)
-            throw new ProtocolViolationException("Data packet should be at least 16 bytes long");
-
-        $o = new self();
-
-        $offset = 0;
-        list($action, $transactionId) = unpack("NN", substring($data, $offset, 8));
-        $offset += 8;
-
-        $o->setConnectionId(substr($data, $offset, 8));
-        $o->setAction($action);
-        $o->setTransactionId($transactionId);
-
-        return $o;
+        return pack("N2",$this->getAction(), $this->getTransactionId()).$this->getConnectionId();
     }
 }
