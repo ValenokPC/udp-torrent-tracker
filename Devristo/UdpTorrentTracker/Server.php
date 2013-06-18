@@ -138,7 +138,7 @@ class Server implements EventManagerAwareInterface {
 
     private function onConnect(ConnectionInput $in){
         do{
-            $connectionId = Rand::getBytes("8");
+            $connectionId = "\0\0\0\0".pack("I",Rand::getInteger(0,PHP_INT_MAX));
         } while(array_key_exists($connectionId, $this->_connections));
 
         $this->_connections[$connectionId] = new Connection($connectionId, new DateTime());
