@@ -70,6 +70,6 @@ class ConnectionOutput {
     }
 
     public function toBytes(){
-        return pack("N2",$this->getAction(), $this->getTransactionId()).$this->getConnectionId();
+        return pack("I2",$this->getAction(), $this->getTransactionId()).$this->getConnectionId();
     }
 }

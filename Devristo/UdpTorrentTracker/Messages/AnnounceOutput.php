@@ -125,13 +125,13 @@ class AnnounceOutput {
     protected $_peers = array();
 
     public function toBytes(){
-        $header = pack("N5", $this->action, $this->transactionId, $this->interval, $this->leechers, $this->seeders);
+        $header = pack("I5", $this->action, $this->transactionId, $this->interval, $this->leechers, $this->seeders);
 
         $peerData = '';
         foreach($this->_peers as $peer){
             list($ip, $port) = explode(":", $peer);
 
-            $peerData .= pack("N2",$peer->getIp(), $peer->getPort());
+            $peerData .= pack("In",$peer->getIp(), $peer->getPort());
         }
 
         return $header.$peerData;

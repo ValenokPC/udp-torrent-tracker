@@ -269,7 +269,7 @@ class AnnounceInput extends Input{
         $connectionId = substr($data, $offset, 8);
         $offset += 8;
 
-        list($action, $transactionId) = array_values(unpack("N2", substr($data, $offset, 8)));
+        list($action, $transactionId) = array_values(unpack("I2", substr($data, $offset, 8)));
         $offset += 8;
 
         $infoHash = substr($data, $offset, 20);
@@ -289,7 +289,7 @@ class AnnounceInput extends Input{
         $uploaded = $bi->binToInt(substr($data, $offset, 8));
         $offset += 8;
 
-        list($event, $ipv4, $key, $numWant) = array_values(unpack("N4", substr($data, $offset, 4*4)));
+        list($event, $ipv4, $key, $numWant) = array_values(unpack("IN2I", substr($data, $offset, 4*4)));
         $offset += 4*4;
 
         list($port) = array_values(unpack("n", substr($data, $offset, 2)));
