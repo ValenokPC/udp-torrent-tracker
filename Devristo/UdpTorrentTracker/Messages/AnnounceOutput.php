@@ -17,9 +17,9 @@ class AnnounceOutput {
     protected $transactionId;
     protected $connectionId;
 
-    protected $interval;
-    protected $leechers;
-    protected $seeders;
+    protected $interval = 15;
+    protected $leechers = 0;
+    protected $seeders = 0;
 
     /**
      * @param int $action
@@ -125,13 +125,16 @@ class AnnounceOutput {
     protected $_peers = array();
 
     public function toBytes(){
-        $header = pack("I5", $this->action, $this->transactionId, $this->interval, $this->leechers, $this->seeders);
+        $header =
+            Pack::pack_int32be($this->getAction())
+            .hex2bin($this->transactionId)
+            .Pack::pack_int32be($this->interval)
+            .Pack::pack_int32be($this->leechers)
+            .Pack::pack_int32be($this->seeders);
 
         $peerData = '';
         foreach($this->_peers as $peer){
-            list($ip, $port) = explode(":", $peer);
-
-            $peerData .= pack("In",$peer->getIp(), $peer->getPort());
+            $peerData .= ip2long($peer->getIp()).pack("n", $peer->getPort());
         }
 
         return $header.$peerData;

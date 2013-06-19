@@ -269,8 +269,11 @@ class AnnounceInput extends Input{
         $connectionId = substr($data, $offset, 8);
         $offset += 8;
 
-        list($action, $transactionId) = array_values(unpack("I2", substr($data, $offset, 8)));
-        $offset += 8;
+        $action = Pack::unpack_int32be(substr($data, $offset, 4));
+        $offset += 4;
+
+        $transactionId = substr($data, $offset, 4);
+        $offset += 4;
 
         $infoHash = substr($data, $offset, 20);
         $offset += 20;
@@ -278,30 +281,33 @@ class AnnounceInput extends Input{
         $peerId = substr($data, $offset, 20);
         $offset += 20;
 
-        $bi = BigInteger::getDefaultAdapter();
-
-        $downloaded = $bi->binToInt(substr($data, $offset, 8));
+        $downloaded = Pack::unpack_int64be(substr($data, $offset, 8));
         $offset += 8;
 
-        $left = $bi->binToInt(substr($data, $offset, 8));
+        $left = Pack::unpack_int64be(substr($data, $offset, 8));
         $offset += 8;
 
-        $uploaded = $bi->binToInt(substr($data, $offset, 8));
+        $uploaded = Pack::unpack_int64be(substr($data, $offset, 8));
         $offset += 8;
 
-        list($event, $ipv4, $key, $numWant) = array_values(unpack("IN2I", substr($data, $offset, 4*4)));
-        $offset += 4*4;
+        list(,$event) = Pack::unpack_int32be(substr($data, $offset, 4)); $offset += 4;
+        list(,$ipv4) = unpack("N", substr($data, $offset, 4)); $offset += 4;
+        $ipv4 = long2ip($ipv4);
+
+
+        list(,$key) = unpack("N", substr($data, $offset, 4)); $offset += 4;
+        $numWant = Pack::unpack_int32be(substr($data, $offset, 4)); $offset += 4;
 
         list($port) = array_values(unpack("n", substr($data, $offset, 2)));
         $offset += 2;
 
         $o = new self();
 
-        $o->setConnectionId($connectionId);
+        $o->setConnectionId(bin2hex($connectionId));
         $o->setAction($action);
-        $o->setTransactionId($transactionId);
+        $o->setTransactionId(bin2hex($transactionId));
 
-        $o->setInfoHash($infoHash);
+        $o->setInfoHash(($infoHash));
         $o->setPeerId($peerId);
         $o->setDownloaded($downloaded);
         $o->setLeft($left);

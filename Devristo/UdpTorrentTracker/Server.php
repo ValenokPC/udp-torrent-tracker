@@ -129,7 +129,7 @@ class Server implements EventManagerAwareInterface {
 
                 # Trigger events
                 $this->getEventManager()->trigger("input", $this, array("packet" => $inputPacket));
-            } catch(ProtocolViolationException $exception){
+            } catch(Exception $exception){
                 $this->getEventManager()->trigger("exception", $this, array("exception" => $exception));
             }
 
@@ -138,7 +138,7 @@ class Server implements EventManagerAwareInterface {
 
     private function onConnect(ConnectionInput $in){
         do{
-            $connectionId = "\0\0\0\0".pack("I",Rand::getInteger(0,PHP_INT_MAX));
+            $connectionId = bin2hex(pack("NN",rand(0,2000000000),rand(0,2000000000)));
         } while(array_key_exists($connectionId, $this->_connections));
 
         $this->_connections[$connectionId] = new Connection($connectionId, new DateTime());

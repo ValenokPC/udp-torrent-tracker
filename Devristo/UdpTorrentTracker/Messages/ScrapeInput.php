@@ -25,27 +25,29 @@ class ScrapeInput extends Input {
         $connectionId = substr($data, $offset, 8);
         $offset += 8;
 
-        list($action, $transactionId) = array_values(unpack("N2", substr($data, $offset, 8)));
-        $offset += 8;
+        list(,$action) = (unpack("N", substr($data, $offset, 4)));
+        $offset += 4;
+        $transactionId = substr($data, $offset, 4);
+        $offset +=4;
 
         $o = new self();
 
         $o->peerIp = $peerIp;
         $o->peerPort = $peerPort;
 
-        $o->setConnectionId($connectionId);
+        $o->setConnectionId(bin2hex($connectionId));
         $o->setAction($action);
-        $o->setTransactionId($transactionId);
+        $o->setTransactionId(bin2hex($transactionId));
 
         while($offset + 20 <= strlen($data)){
-            $o->infoHashes[] = substr($data, $offset, 20);
+            $o->infoHashes[] = (substr($data, $offset, 20));
             $offset += 20;
         }
 
 
 
         if($action !== 2)
-            throw new ProtocolViolationException("Action should be 0 for a SCRAPE INPUT");
+            throw new ProtocolViolationException("Action should be 2 for a SCRAPE INPUT");
 
         return $o;
     }

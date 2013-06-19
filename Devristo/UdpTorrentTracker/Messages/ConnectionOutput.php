@@ -66,10 +66,10 @@ class ConnectionOutput {
     }
 
     public function isOpenHandshake(){
-        return $this->connectionId == hex2bin("41727101980");
+        return $this->connectionId == ("000041727101980");
     }
 
     public function toBytes(){
-        return pack("I2",$this->getAction(), $this->getTransactionId()).$this->getConnectionId();
+        return Pack::pack_int32be($this->getAction()).hex2bin($this->getTransactionId()).hex2bin($this->getConnectionId());
     }
 }
