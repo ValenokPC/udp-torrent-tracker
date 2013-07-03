@@ -48,6 +48,6 @@ class ErrorOutput {
     }
 
     public function toBytes(){
-        return pack("NN", $this->action, $this->transactionId).$this->getMessage();
+        return Pack::pack_int32be($this->action).Pack::pack_int32be($this->transactionId).$this->getMessage();
     }
 }

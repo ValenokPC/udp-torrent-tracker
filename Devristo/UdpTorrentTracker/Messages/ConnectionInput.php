@@ -24,15 +24,15 @@ class ConnectionInput extends Input{
         $connectionId = substr($data, $offset, 8);
         $offset += 8;
 
-        list(,$action) = unpack("N", substr($data, $offset, 4));
+        $action = Pack::unpack_int32be(substr($data, $offset, 4));
         $offset += 4;
 
-        $transactionId = substr($data, $offset, 4);
+        $transactionId = Pack::unpack_int32be(substr($data, $offset, 4));
         $offset += 4;
 
         $o->setConnectionId(bin2hex($connectionId));
         $o->setAction($action);
-        $o->setTransactionId(bin2hex($transactionId));
+        $o->setTransactionId($transactionId);
 
         $o->peerIp = $peerIp;
         $o->peerPort = $peerPort;

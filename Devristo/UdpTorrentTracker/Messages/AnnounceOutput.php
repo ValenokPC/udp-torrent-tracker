@@ -127,7 +127,7 @@ class AnnounceOutput {
     public function toBytes(){
         $header =
             Pack::pack_int32be($this->getAction())
-            .hex2bin($this->transactionId)
+            .Pack::pack_int32be($this->transactionId)
             .Pack::pack_int32be($this->interval)
             .Pack::pack_int32be($this->leechers)
             .Pack::pack_int32be($this->seeders);

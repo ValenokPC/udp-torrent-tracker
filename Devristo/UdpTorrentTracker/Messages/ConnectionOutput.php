@@ -70,6 +70,6 @@ class ConnectionOutput {
     }
 
     public function toBytes(){
-        return Pack::pack_int32be($this->getAction()).hex2bin($this->getTransactionId()).hex2bin($this->getConnectionId());
+        return Pack::pack_int32be($this->getAction()).Pack::pack_int32be($this->getTransactionId()).hex2bin($this->getConnectionId());
     }
 }
