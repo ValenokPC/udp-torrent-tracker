@@ -15,7 +15,7 @@
     },
     "target-dir": "",
     "require": {
-        "zendframework/zend-math": "2.2.1",
-        "zendframework/zend-eventmanager": "2.2.1"
+        "zendframework/zend-math": "2.*,
+        "zendframework/zend-eventmanager": "2.*"
     }
 }
