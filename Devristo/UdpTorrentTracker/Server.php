@@ -18,6 +18,7 @@ use Devristo\UdpTorrentTracker\Messages\ConnectionOutput;
 use Devristo\UdpTorrentTracker\Messages\ErrorOutput;
 use Devristo\UdpTorrentTracker\Messages\Input;
 use Devristo\UdpTorrentTracker\Messages\ScrapeInput;
+use Devristo\UdpTorrentTracker\Messages\ScrapeOutput;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
@@ -185,6 +186,17 @@ class Server implements EventManagerAwareInterface {
 
         foreach($peers as $peer)
             $output->addPeer($peer);
+
+        $buff = $output->toBytes();
+        socket_sendto($this->socket, $buff, strlen($buff), 0, $input->getPeerIp(), $input->getPeerPort());
+    }
+
+    public function replyScrape(ScrapeInput $input, array $seeders, array $completed, array $leechers){
+        $output = new ScrapeOutput();
+
+        $output->setSeeders($seeders);
+        $output->setCompleted($completed);
+        $output->setLeechers($leechers);
 
         $buff = $output->toBytes();
         socket_sendto($this->socket, $buff, strlen($buff), 0, $input->getPeerIp(), $input->getPeerPort());
