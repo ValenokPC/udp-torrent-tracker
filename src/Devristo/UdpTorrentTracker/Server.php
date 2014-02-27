@@ -112,12 +112,14 @@ class Server implements EventManagerAwareInterface {
         $from = null;
         $port = null;
 
+        $result = false;
+
         do {
             try{
                 $result = socket_recvfrom($socket, $buf, 1500,0, $from, $port);
 
                 if($result === false)
-                    exit("Error occured!");
+                    exit("Error occurred!");
 
                 $inputPacket = Input::fromUdpPacket($from, $port, $buf);
 
@@ -130,7 +132,7 @@ class Server implements EventManagerAwareInterface {
 
                 # Trigger events
                 $this->getEventManager()->trigger("input", $this, array("packet" => $inputPacket));
-            } catch(Exception $exception){
+            } catch(\Exception $exception){
                 $this->getEventManager()->trigger("exception", $this, array("exception" => $exception));
             }
 

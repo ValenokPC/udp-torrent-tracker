@@ -119,9 +119,7 @@ class ScrapeOutput {
     }
 
     public function toBytes(){
-        $header =
-            Pack::pack_int32be($this->getAction())
-            .Pack::pack_int32be($this->transactionId);
+        $header = pack("NN", $this->getAction(), $this->transactionId);
 
         foreach($this->seeders as $seeders){
             $header .= pack("N", $seeders);

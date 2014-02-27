@@ -264,16 +264,15 @@ class AnnounceInput extends Input{
         if(strlen($data) < 20)
             throw new ProtocolViolationException("Data packet should be at least 20 bytes long");
 
-
         $offset = 0;
         $connectionId = substr($data, $offset, 8);
         $offset += 8;
 
-        $action = Pack::unpack_int32be(substr($data, $offset, 4));
-        $offset += 4;
+        $struct = unpack("Naction/NtransactionId", substr($data, $offset, 8));
 
-        $transactionId = Pack::unpack_int32be(substr($data, $offset, 4));
-        $offset += 4;
+        $action = $struct['action'];
+        $transactionId = $struct['transactionId'];
+        $offset += 8;
 
         $infoHash = substr($data, $offset, 20);
         $offset += 20;

@@ -127,7 +127,9 @@ abstract class Input
         $connectionId = substr($data, $offset, 8);
         $offset += 8;
 
-        $action = Pack::unpack_int32be(substr($data, $offset, 4));
+        $struct = unpack("Naction", substr($data, $offset, 4));
+
+        $action = $struct['action'];
 
         switch ($action) {
             case self::PACKET_TYPE_CONNECT:
