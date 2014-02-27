@@ -124,6 +124,35 @@ class AnnounceOutput {
      */
     protected $_peers = array();
 
+    private static function ip_to_bytes($ip){
+        $long = ip2long($ip);
+
+        return pack("N", $long);
+    }
+
+    public static function fromBytes($data){
+        $o = new AnnounceOutput();
+
+        $header = unpack("Naction/Ntransaction/Ninterval/Nseeders/Nleechers", $data);
+        $o->setAction($header['action']);
+        $o->setTransactionId($header['transaction']);
+        $o->setInterval($header['interval']);
+        $o->setLeechers($header['leechers']);
+        $o->setSeeders($header['seeders']);
+
+        $offset = 20;
+
+        while($offset < strlen($data)){
+            $peerdata = unpack("Niplong/nport", substr($data, $offset));
+            $peer = new SwarmPeer(long2ip($peerdata['iplong']), $peerdata['port']);
+            $o->addPeer($peer);
+            $offset += 6;
+        }
+
+        return $o;
+
+    }
+
     public function toBytes(){
         $header =
             Pack::pack_int32be($this->getAction())
@@ -134,7 +163,7 @@ class AnnounceOutput {
 
         $peerData = '';
         foreach($this->_peers as $peer){
-            $peerData .= ip2long($peer->getIp()).pack("n", $peer->getPort());
+            $peerData .= self::ip_to_bytes($peer->getIp()).pack("n", $peer->getPort());
         }
 
         return $header.$peerData;
@@ -142,5 +171,10 @@ class AnnounceOutput {
 
     public function addPeer(SwarmPeer $peer){
         $this->_peers[] = $peer;
+    }
+
+    public function getPeers()
+    {
+        return $this->_peers;
     }
 }

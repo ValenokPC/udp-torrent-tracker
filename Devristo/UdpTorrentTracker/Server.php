@@ -180,7 +180,6 @@ class Server implements EventManagerAwareInterface {
     public function replyAnnounce(AnnounceInput $input, $seeders, $leechers, array $peers){
         $output = new AnnounceOutput();
         $output->setTransactionId($input->getTransactionId());
-        $output->setConnectionId($input->getConnectionId());
         $output->setSeeders($seeders);
         $output->setLeechers($leechers);
 

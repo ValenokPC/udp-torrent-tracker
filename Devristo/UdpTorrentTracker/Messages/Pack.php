@@ -13,20 +13,12 @@ define('BIG_ENDIAN', pack('L', 1) === pack('N', 1));
 
 class Pack {
     static function unpack_int32be($bin){
-        if(!BIG_ENDIAN)
-            $bin = strrev(substr($bin, 0,4));
-
-
-        list(,$int) = unpack("l", $bin);
+        list(,$int) = unpack("N", $bin);
         return $int;
     }
 
     static function pack_int32be($int){
-        $packed = pack("l", $int);
-
-        if(!BIG_ENDIAN)
-            $packed = strrev($packed);
-
+        $packed = pack("N", $int);
         return $packed;
     }
 

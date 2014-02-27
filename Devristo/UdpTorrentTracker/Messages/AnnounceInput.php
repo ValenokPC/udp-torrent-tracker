@@ -272,7 +272,7 @@ class AnnounceInput extends Input{
         $action = Pack::unpack_int32be(substr($data, $offset, 4));
         $offset += 4;
 
-        $transactionId = substr($data, $offset, 4);
+        $transactionId = Pack::unpack_int32be(substr($data, $offset, 4));
         $offset += 4;
 
         $infoHash = substr($data, $offset, 20);
@@ -305,7 +305,7 @@ class AnnounceInput extends Input{
 
         $o->setConnectionId(bin2hex($connectionId));
         $o->setAction($action);
-        $o->setTransactionId(bin2hex($transactionId));
+        $o->setTransactionId($transactionId);
 
         $o->setInfoHash(($infoHash));
         $o->setPeerId($peerId);
