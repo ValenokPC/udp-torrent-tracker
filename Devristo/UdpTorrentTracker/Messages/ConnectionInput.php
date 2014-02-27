@@ -24,21 +24,16 @@ class ConnectionInput extends Input{
         $connectionId = substr($data, $offset, 8);
         $offset += 8;
 
-        $action = Pack::unpack_int32be(substr($data, $offset, 4));
-        $offset += 4;
-
-        $transactionId = Pack::unpack_int32be(substr($data, $offset, 4));
-        $offset += 4;
+        $struct = unpack("Naction/Ntransaction", substr($data, $offset, 8));
 
         $o->setConnectionId(bin2hex($connectionId));
-        $o->setAction($action);
-        $o->setTransactionId($transactionId);
+        $o->setAction($struct['action']);
+        $o->setTransactionId($struct['transaction']);
 
         $o->peerIp = $peerIp;
         $o->peerPort = $peerPort;
 
-
-        if($action !== 0)
+        if($o->getAction() !== 0)
             throw new ProtocolViolationException("Action should be 0 for a CONNECT INPUT");
 
         if($connectionId !== hex2bin("0000041727101980"))

@@ -15,7 +15,6 @@ use Devristo\UdpTorrentTracker\SwarmPeer;
 class AnnounceOutput {
     protected $action = 1;
     protected $transactionId;
-    protected $connectionId;
 
     protected $interval = 15;
     protected $leechers = 0;
@@ -35,22 +34,6 @@ class AnnounceOutput {
     public function getAction()
     {
         return $this->action;
-    }
-
-    /**
-     * @param mixed $connectionId
-     */
-    public function setConnectionId($connectionId)
-    {
-        $this->connectionId = $connectionId;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getConnectionId()
-    {
-        return $this->connectionId;
     }
 
     /**
@@ -117,18 +100,10 @@ class AnnounceOutput {
         return $this->transactionId;
     }
 
-
-
     /**
      * @var SwarmPeer[]
      */
     protected $_peers = array();
-
-    private static function ip_to_bytes($ip){
-        $long = ip2long($ip);
-
-        return pack("N", $long);
-    }
 
     public static function fromBytes($data){
         $o = new AnnounceOutput();
@@ -154,16 +129,11 @@ class AnnounceOutput {
     }
 
     public function toBytes(){
-        $header =
-            Pack::pack_int32be($this->getAction())
-            .Pack::pack_int32be($this->transactionId)
-            .Pack::pack_int32be($this->interval)
-            .Pack::pack_int32be($this->leechers)
-            .Pack::pack_int32be($this->seeders);
+        $header = pack("NNNNN", $this->getAction(), $this->transactionId, $this->interval, $this->leechers, $this->seeders);
 
         $peerData = '';
         foreach($this->_peers as $peer){
-            $peerData .= self::ip_to_bytes($peer->getIp()).pack("n", $peer->getPort());
+            $peerData .= pack("N", ip2long($peer->getIp())).pack("n", $peer->getPort());
         }
 
         return $header.$peerData;

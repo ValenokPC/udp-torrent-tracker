@@ -124,15 +124,15 @@ class ScrapeOutput {
             .Pack::pack_int32be($this->transactionId);
 
         foreach($this->seeders as $seeders){
-            $header .= Pack::pack_int32be($seeders);
+            $header .= pack("N", $seeders);
         }
 
         foreach($this->completed as $completed){
-            $header .= Pack::pack_int32be($completed);
+            $header .= pack("N", $completed);
         }
 
         foreach($this->leechers as $leechers){
-            $header .= Pack::pack_int32be($leechers);
+            $header .= pack("N", $leechers);
         }
 
         return $header;
